@@ -1,3 +1,6 @@
+This repository contains the artifacts of I/O Passthru: Upstreaming a flexible and
+efficient I/O Path in Linux published at FAST'24 : https://www.usenix.org/conference/fast24/presentation/joshi
+
 # Overview
 * Installing Linux
 * Installing fio
