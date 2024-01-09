@@ -11,7 +11,9 @@ Node                  Generic               SN                   Model          
 /dev/nvme0n1          /dev/ng0n1            PHAL1185001D400AGN   INTEL SSDPF21Q400GB                      1         400.09  GB / 400.09  GB    512   B +  0 B   L0310100
 ```
 
-2. Enable poll_queues in the NVMe driver system wide
+2. These experiments require us to be super user, which can be done using ```sudo su```
+
+3. Enable poll_queues in the NVMe driver system wide
 ```
 # modprobe -r nvme && modprobe nvme poll_queues=1
 # cat /sys/block/nvme0n1/queue/io_poll

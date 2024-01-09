@@ -5,6 +5,11 @@ efficient I/O Path in Linux published at FAST'24 : https://www.usenix.org/confer
 * Installing Linux
 * Installing fio
 
+# Ubuntu Distro
+* The performance was benchmarked using 6.2 kernel. 6.2 kernel comes preinstalled with ubuntu 23.04 (or Ubuntu 22.04.3 LTS). Please see this: https://ubuntu.com/about/release-cycle#ubuntu-kernel-release-cycle
+* Ubuntu 23.04 iso: https://releases.ubuntu.com/lunar/ubuntu-23.04-desktop-amd64.iso
+* Or we can install custom kernel as shown below,
+
 # Installing Linux
 * Clone upstream linux repo: ```git clone https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git```
 * Change directory: ```cd linux```
