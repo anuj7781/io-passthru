@@ -114,7 +114,7 @@ index bf0aa26e..a32b2e4c 100644
 -static int sq_thread_poll = 0; /* use kernel submission/poller thread */
 -static int sq_thread_cpu = -1; /* pin above thread to this CPU */
 +static int sq_thread_poll = 1; /* use kernel submission/poller thread */
-+static int sq_thread_cpu = 13; /* pin above thread to this CPU */
++static int sq_thread_cpu = 5; /* pin above thread to this CPU */
  static int do_nop = 0;         /* no-op SQ ring commands */
  static int nthreads = 1;
  static int stats = 0;          /* generate IO stats */
