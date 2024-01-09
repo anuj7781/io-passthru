@@ -67,9 +67,9 @@ run()
 
 if [ $sqpoll -eq 1 ]
 then
-	outdir=without-sqpoll-out-$(date +"%d-%m-%Y-%H-%M-%S")
-else
 	outdir=with-sqpoll-out-$(date +"%d-%m-%Y-%H-%M-%S")
+else
+	outdir=without-sqpoll-out-$(date +"%d-%m-%Y-%H-%M-%S")
 fi
 
 mkdir $outdir
