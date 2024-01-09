@@ -26,6 +26,16 @@ efficient I/O Path in Linux published at FAST'24 : https://www.usenix.org/confer
 * Compile fio: ```make -j $(getconf _NPROCESSORS_ONLN)```
 * Install  fio: ```make install```
 
+# Userspace Integration
+
+Link to patches for adding userspace support:
+
+* xNVMe io_uring_cmd engine: ```https://github.com/OpenMPDK/xNVMe/pull/51```
+* xNVMe big sqe/cqe support: ```https://github.com/OpenMPDK/xNVMe/pull/84```
+* spdk: ```https://github.com/spdk/spdk/commit/6f338d4bf3a8a91b7abe377a605a321ea2b05bf7```
+* fio: ```https://lore.kernel.org/fio/20220531133155.17493-1-ankit.kumar@samsung.com/```
+* t/io_uring: ```https://lore.kernel.org/fio/20220826113306.4139-1-anuj20.g@samsung.com/```
+
 # Benchmarking
 * Please refer to the benchmark subdirectory in this repo.
   Link: https://github.com/anuj7781/io-passthru/tree/master/benchmark
