@@ -1,17 +1,36 @@
 Setup
 =====
 
-1. The setup consists of two Intel Optane Gen2 NVMe drives. NVMe device should
+1. These experiments require us to be super user, which can be done using ```sudo su```
+
+2. The setup consists of two Intel Optane Gen2 NVMe drives. NVMe device should
 be formatted with 512b as lba-format, as experiments have been conducted with 512b workload,
 ```
+# nvme id-ns -H /dev/nvme0n1
+
+# nvme format --lbaf=0 /dev/nvme0n1
+You are about to format nvme0n1, namespace 0x1.
+WARNING: Format may irrevocably delete this device's data.
+You have 10 seconds to press Ctrl-C to cancel this operation.
+
+Use the force [--force] option to suppress this warning.
+Sending format operation ...
+Success formatting namespace:1
+
+# nvme id-ns -H /dev/nvme0n1
+LBA Format  0 : Metadata Size: 0   bytes - Data Size: 512 bytes - Relative Performance: 0x2 Good (in use)
+LBA Format  1 : Metadata Size: 8   bytes - Data Size: 512 bytes - Relative Performance: 0x2 Good
+LBA Format  2 : Metadata Size: 0   bytes - Data Size: 4096 bytes - Relative Performance: 0x2 Good
+LBA Format  3 : Metadata Size: 8   bytes - Data Size: 4096 bytes - Relative Performance: 0x2 Good
+LBA Format  4 : Metadata Size: 64  bytes - Data Size: 4096 bytes - Relative Performance: 0x2 Good
+
+
 # nvme list
 Node                  Generic               SN                   Model                                    Namespace Usage                      Format           FW Rev
 --------------------- --------------------- -------------------- ---------------------------------------- --------- -------------------------- ---------------- --------
 /dev/nvme1n1          /dev/ng1n1            PHAL11730018400AGN   INTEL SSDPF21Q400GB                      1         400.09  GB / 400.09  GB    512   B +  0 B   L0310200
 /dev/nvme0n1          /dev/ng0n1            PHAL1185001D400AGN   INTEL SSDPF21Q400GB                      1         400.09  GB / 400.09  GB    512   B +  0 B   L0310100
 ```
-
-2. These experiments require us to be super user, which can be done using ```sudo su```
 
 3. Enable poll_queues in the NVMe driver system wide
 ```
