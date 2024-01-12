@@ -7,6 +7,11 @@ Setup
 be formatted with 512b as lba-format, as experiments have been conducted with 512b workload,
 ```
 # nvme id-ns -H /dev/nvme0n1
+LBA Format  0 : Metadata Size: 0   bytes - Data Size: 512 bytes - Relative Performance: 0x2 Good
+LBA Format  1 : Metadata Size: 8   bytes - Data Size: 512 bytes - Relative Performance: 0x2 Good
+LBA Format  2 : Metadata Size: 0   bytes - Data Size: 4096 bytes - Relative Performance: 0x2 Good (in use)
+LBA Format  3 : Metadata Size: 8   bytes - Data Size: 4096 bytes - Relative Performance: 0x2 Good
+LBA Format  4 : Metadata Size: 64  bytes - Data Size: 4096 bytes - Relative Performance: 0x2 Good
 
 # nvme format --lbaf=0 /dev/nvme0n1
 You are about to format nvme0n1, namespace 0x1.
@@ -46,13 +51,13 @@ performance of io_uring_char and io_uring_block path.
 
 1. Copy the script to your fio repo ```cp benchmark/measure-linear-core.sh /home/test/fio/```
 
-2. Run the script, pass 1 (# of nvme-devices) as argument.
+2. Run the script, pass char device and block device as arguments. (Note: you can pass any char/block device. /dev/ng0n1 and /dev/nvme0n1 are used as examples only in sample command.)
 
-3. Results will be placed in pt1 and blk1 files in the output directory.
+3. Results will be placed in pt and blk files in the output directory.
 
 Sample command:
 ```
-# ./measure-linear-core.sh 1
+# ./measure-linear-core.sh /dev/ng0n1 /dev/nvme0n1
 ```
 
 Scalability across queue-depths
@@ -62,7 +67,7 @@ across different queue-depths.
 
 1. Copy the script to your fio repo ```cp benchmark/measure-scaling.sh /home/test/fio/```
 
-2. Run the script, pass two arguments: char-device and block-device, respectively.
+2. Run the script, pass two arguments: char-device and block-device, respectively. (Note: you can pass any char/block device. /dev/ng0n1 and /dev/nvme0n1 are used as examples only in sample command.)
 
 3. Results will be placed in pt and blk file in the output directory.
 
@@ -94,7 +99,7 @@ across different block sizes.
 
 1. Copy the script to your fio repo  ```cp benchmark/measure-fb-latency.sh /home/test/fio/```
 
-2. Run the script, pass two arguments: char-device and block-device, respectively.
+2. Run the script, pass two arguments: char-device and block-device, respectively. (Note: you can pass any char/block device. /dev/ng0n1 and /dev/nvme0n1 are used as examples only in sample command.)
 
 3. Results will be placed in the output directory, corresponding to each fio run.
 
@@ -110,7 +115,7 @@ and io_uring_block path.
 
 1. Copy the script to your fio repo  ```cp benchmark/measure-sqpoll-batching.sh /home/test/fio/```
 
-2. Run the script, pass three arguments: sqpoll disabled/enabled, char-device and block-device, respectively.
+2. Run the script, pass three arguments: sqpoll disabled/enabled, char-device and block-device, respectively. (Note: you can pass any char/block device. /dev/ng0n1 and /dev/nvme0n1 are used as examples only in sample command.)
 
 3. The first run will capture results for sqpoll disabled scenario.
 
