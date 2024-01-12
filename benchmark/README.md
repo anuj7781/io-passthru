@@ -46,18 +46,18 @@ Node                  Generic               SN                   Model          
 
 Peak performance using single CPU core
 ======================================
-measure_linear_core.sh uses single cpu core for one device to measure peak
+measure-single-device.sh uses single cpu core for one device to measure peak
 performance of io_uring_char and io_uring_block path.
 
-1. Copy the script to your fio repo ```cp benchmark/measure-linear-core.sh /home/test/fio/```
+1. Copy the script to your fio repo ```cp benchmark/measure-single-device.sh /home/test/fio/```
 
-2. Run the script, pass char device and block device as arguments. (Note: you can pass any char/block device. /dev/ng0n1 and /dev/nvme0n1 are used as examples only in sample command.)
+2. Run the script, pass char device and block device as arguments. (Note: you can pass any char/block device. /dev/ng0n1 and /dev/nvme0n1 are used as only examples in sample command.)
 
 3. Results will be placed in pt and blk files in the output directory.
 
 Sample command:
 ```
-# ./measure-single-device.sh /dev/ng0n1 /dev/nvme0n1
+./measure-single-device.sh /dev/ng0n1 /dev/nvme0n1
 ```
 
 Scalability across queue-depths
@@ -67,25 +67,25 @@ across different queue-depths.
 
 1. Copy the script to your fio repo ```cp benchmark/measure-scaling.sh /home/test/fio/```
 
-2. Run the script, pass two arguments: char-device and block-device, respectively. (Note: you can pass any char/block device. /dev/ng0n1 and /dev/nvme0n1 are used as examples only in sample command.)
+2. Run the script, pass two arguments: char-device and block-device, respectively. (Note: you can pass any char/block device. /dev/ng0n1 and /dev/nvme0n1 are used as only examples in sample command.)
 
 3. Results will be placed in pt and blk file in the output directory.
 
 Sample command:
 ```
-# ./measure-scaling.sh /dev/ng0n1 /dev/nvme0n1
+./measure-scaling.sh /dev/ng0n1 /dev/nvme0n1
 ```
 
 Scalability across multiple(two) devices
 ===================================
-measure_linear_core.sh uses a distinct core for each device to measure peak performance
+measure-two-devices.sh uses a distinct core for each device to measure peak performance
 of io_uring_char and io_uring_block path across multiple devices.
 
-1. Copy the script to your fio repo  ```cp benchmark/measure-linear-core.sh /home/test/fio/```
+1. Copy the script to your fio repo  ```cp benchmark/measure-two-devices.sh /home/test/fio/```
 
 2. Run the script, pass two char device and two block device as arguments in that order. (Note: you can pass any char/block device. The sample command is just an example.)
 
-3. Results will be placed in pt${device_count} and blk${device_count} files in the output directory.
+3. Results will be placed in pt and blk files in the output directory.
 
 Sample command:
 ```
@@ -99,13 +99,13 @@ across different block sizes.
 
 1. Copy the script to your fio repo  ```cp benchmark/measure-fb-latency.sh /home/test/fio/```
 
-2. Run the script, pass two arguments: char-device and block-device, respectively. (Note: you can pass any char/block device. /dev/ng0n1 and /dev/nvme0n1 are used as examples only in sample command.)
+2. Run the script, pass two arguments: char-device and block-device, respectively. (Note: you can pass any char/block device. /dev/ng0n1 and /dev/nvme0n1 are used as only examples in sample command.)
 
 3. Results will be placed in the output directory, corresponding to each fio run.
 
 Sample command:
 ```
-# ./measure-fb-latency.sh /dev/ng0n1 /dev/nvme0n1
+./measure-fb-latency.sh /dev/ng0n1 /dev/nvme0n1
 ```
 
 Sqpoll and batching
@@ -115,13 +115,13 @@ and io_uring_block path.
 
 1. Copy the script to your fio repo  ```cp benchmark/measure-sqpoll-batching.sh /home/test/fio/```
 
-2. Run the script, pass three arguments: sqpoll disabled/enabled, char-device and block-device, respectively. (Note: you can pass any char/block device. /dev/ng0n1 and /dev/nvme0n1 are used as examples only in sample command.)
+2. Run the script, pass three arguments: sqpoll disabled/enabled, char-device and block-device, respectively. (Note: you can pass any char/block device. /dev/ng0n1 and /dev/nvme0n1 are used as only examples in sample command.)
 
 3. The first run will capture results for sqpoll disabled scenario.
 
 Sample command:
 ```
-# ./measure-sqpoll-batching.sh 0 /dev/ng0n1 /dev/nvme0n1
+./measure-sqpoll-batching.sh 0 /dev/ng0n1 /dev/nvme0n1
 ```
 
 4. t/io_uring needs to be modified in-order-to enable sqpoll -
@@ -152,5 +152,5 @@ LINK t/io_uring
    this time with sqpoll enabled.
 Sample command:
 ```
-# ./measure-sqpoll-batching.sh 1 /dev/ng0n1 /dev/nvme0n1
+./measure-sqpoll-batching.sh 1 /dev/ng0n1 /dev/nvme0n1
 ```
