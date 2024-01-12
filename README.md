@@ -40,6 +40,18 @@ Link to patches for adding userspace support:
 * spdk: ```https://github.com/spdk/spdk/commit/6f338d4bf3a8a91b7abe377a605a321ea2b05bf7```
 * fio: ```https://lore.kernel.org/fio/20220531133155.17493-1-ankit.kumar@samsung.com/```
 * t/io_uring: ```https://lore.kernel.org/fio/20220826113306.4139-1-anuj20.g@samsung.com/```
+* liburing tests: ```https://lore.kernel.org/all/20220728093327.32580-1-ankit.kumar@samsung.com/```
+
+# Kernel patches
+
+Link to patches for adding support in kernel:
+
+* Char-interface initial support: ```https://lore.kernel.org/linux-nvme/20210421074504.57750-2-minwoo.im.dev@gmail.com/```
+* Char-interface any command-set: ```https://lore.kernel.org/linux-nvme/20220721060320.1704646-1-hch@lst.de/```
+* Initial io_uring passthru support: ```https://lore.kernel.org/all/20220511054750.20432-1-joshi.k@samsung.com/```
+* Iopoll support for io_uring passthru: ```https://lore.kernel.org/all/20220823161443.49436-1-joshi.k@samsung.com/```
+* Fixed buffer support for io_uring passthru: ```https://lore.kernel.org/all/20220930062749.152261-1-anuj20.g@samsung.com/```
+* Unprivileged access for passthrough: ```https://lore.kernel.org/linux-nvme/20221031162351.31856-1-joshi.k@samsung.com/```
 
 # Benchmarking
 * Please refer to the benchmark subdirectory in this repo.
