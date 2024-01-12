@@ -76,20 +76,20 @@ Sample command:
 # ./measure-scaling.sh /dev/ng0n1 /dev/nvme0n1
 ```
 
-Scalability across multiple devices
+Scalability across multiple(two) devices
 ===================================
 measure_linear_core.sh uses a distinct core for each device to measure peak performance
 of io_uring_char and io_uring_block path across multiple devices.
 
 1. Copy the script to your fio repo  ```cp benchmark/measure-linear-core.sh /home/test/fio/```
 
-2. Run the script, pass number of nvme-devices as argument.
+2. Run the script, pass two char device and two block device as arguments in that order. (Note: you can pass any char/block device. The sample command is just an example.)
 
 3. Results will be placed in pt${device_count} and blk${device_count} files in the output directory.
 
 Sample command:
 ```
-# ./measure-linear-core.sh 2
+./measure-two-devices.sh /dev/ng0n1 /dev/ng0n2 /dev/nvme0n1 /dev/nvme0n2
 ```
 
 Submission latency and cpu-utilization
