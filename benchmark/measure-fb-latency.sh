@@ -3,7 +3,7 @@ set -e
 
 DEV_CHAR=$1
 DEV_BLOCK=$2
-RUNTIME=60
+RUNTIME=30
 
 DIR=$(date +"%H-%M-%S-%d-%m-%y")
 mkdir $DIR
@@ -41,7 +41,7 @@ function run_fio(){
 
 	label=${label}_${param_engine}
 
-	fname=${fname}_${param_engine}_${param_bs}_${param_suffix}_${param_iod}_${param_rw}_${param_bs}_${param_fixedbuf}_${param_hipri}
+	fname=${fname}_${param_bs}_fixedbuffers_${param_fixedbuf}
 	param_output=$DIR/${fname}.out
 
 	echo "engine" $param_engine, "uring_cmd" $param_uring_cmd, "rw" $param_rw, "bs" $param_bs, "sqpoll_thread", $param_sqt, "hipri" $param_hipri, "fixedbuf"  $param_fixedbuf, "param_suffix" $param_suffix, output_file $param_output
