@@ -6,14 +6,14 @@ Setup
 2. The setup consists of two Intel Optane Gen2 NVMe drives. NVMe device should
 be formatted with 512b as lba-format, as experiments have been conducted with 512b workload,
 ```
-# nvme id-ns -H /dev/nvme0n1
+# nvme id-ns -H /dev/ng0n1
 LBA Format  0 : Metadata Size: 0   bytes - Data Size: 512 bytes - Relative Performance: 0x2 Good
 LBA Format  1 : Metadata Size: 8   bytes - Data Size: 512 bytes - Relative Performance: 0x2 Good
 LBA Format  2 : Metadata Size: 0   bytes - Data Size: 4096 bytes - Relative Performance: 0x2 Good (in use)
 LBA Format  3 : Metadata Size: 8   bytes - Data Size: 4096 bytes - Relative Performance: 0x2 Good
 LBA Format  4 : Metadata Size: 64  bytes - Data Size: 4096 bytes - Relative Performance: 0x2 Good
 
-# nvme format --lbaf=0 /dev/nvme0n1
+# nvme format --lbaf=0 /dev/ng0n1
 You are about to format nvme0n1, namespace 0x1.
 WARNING: Format may irrevocably delete this device's data.
 You have 10 seconds to press Ctrl-C to cancel this operation.
@@ -22,7 +22,7 @@ Use the force [--force] option to suppress this warning.
 Sending format operation ...
 Success formatting namespace:1
 
-# nvme id-ns -H /dev/nvme0n1
+# nvme id-ns -H /dev/ng0n1
 LBA Format  0 : Metadata Size: 0   bytes - Data Size: 512 bytes - Relative Performance: 0x2 Good (in use)
 LBA Format  1 : Metadata Size: 8   bytes - Data Size: 512 bytes - Relative Performance: 0x2 Good
 LBA Format  2 : Metadata Size: 0   bytes - Data Size: 4096 bytes - Relative Performance: 0x2 Good
