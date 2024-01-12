@@ -1,6 +1,6 @@
 # Cachelib Experiments
 
-# 1. Experimentation Setup #
+# 1. Introduction #
 * This section explains the Cachelib experimentation setup for Non-FDP and FDP cases. 
 * Use one of the latest stable kernels in 6.1+ series (Ex: 6.1.34, 6.4.8 etc). We used 6.2 for most of the experiments
 
