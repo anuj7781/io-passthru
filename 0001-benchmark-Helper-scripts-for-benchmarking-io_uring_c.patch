@@ -1,0 +1,533 @@
+From 6b01e007676567692c30750b0659d906972bc2f8 Mon Sep 17 00:00:00 2001
+From: Anuj Gupta <anuj20.g@samsung.com>
+Date: Tue, 26 Dec 2023 11:35:13 +0530
+Subject: [PATCH] benchmark: Helper scripts for benchmarking io_uring_char and
+ io_uring_block path
+
+Add scripts to benchmark io_uring_char and io_uring_block path.
+
+Signed-off-by: Anuj Gupta <anuj20.g@samsung.com>
+---
+ benchmark/README.md                  | 130 +++++++++++++++++++++++++++
+ benchmark/measure-fb-latency.sh      |  85 ++++++++++++++++++
+ benchmark/measure-linear-core.sh     |  98 ++++++++++++++++++++
+ benchmark/measure-scaling.sh         |  83 +++++++++++++++++
+ benchmark/measure-sqpoll-batching.sh |  82 +++++++++++++++++
+ 5 files changed, 478 insertions(+)
+ create mode 100644 benchmark/README.md
+ create mode 100755 benchmark/measure-fb-latency.sh
+ create mode 100755 benchmark/measure-linear-core.sh
+ create mode 100755 benchmark/measure-scaling.sh
+ create mode 100755 benchmark/measure-sqpoll-batching.sh
+
+diff --git a/benchmark/README.md b/benchmark/README.md
+new file mode 100644
+index 0000000..fff8379
+--- /dev/null
++++ b/benchmark/README.md
+@@ -0,0 +1,130 @@
++Setup
++=====
++
++1. The setup consists of two Intel Optane Gen2 NVMe drives. NVMe device should
++be formatted with 512b as lba-format, as experiments have been conducted with 512b workload,
++```
++# nvme list
++Node                  Generic               SN                   Model                                    Namespace Usage                      Format           FW Rev
++--------------------- --------------------- -------------------- ---------------------------------------- --------- -------------------------- ---------------- --------
++/dev/nvme1n1          /dev/ng1n1            PHAL11730018400AGN   INTEL SSDPF21Q400GB                      1         400.09  GB / 400.09  GB    512   B +  0 B   L0310200
++/dev/nvme0n1          /dev/ng0n1            PHAL1185001D400AGN   INTEL SSDPF21Q400GB                      1         400.09  GB / 400.09  GB    512   B +  0 B   L0310100
++```
++
++2. Enable poll_queues in the NVMe driver system wide
++```
++# modprobe -r nvme && modprobe nvme poll_queues=1
++# cat /sys/block/nvme0n1/queue/io_poll
++1
++```
++
++Peak performance using single CPU core
++======================================
++measure_linear_core.sh uses single cpu core for one device to measure peak
++performance of io_uring_char and io_uring_block path.
++
++1. Copy the script to your fio repo ```cp benchmark/measure-linear-core.sh /home/test/fio/```
++
++2. Run the script, pass 1 (# of nvme-devices) as argument.
++
++3. Results will be placed in pt1 and blk1 files in the output directory.
++
++Sample command:
++```
++# ./measure-linear-core.sh 1
++```
++
++Scalability across queue-depths
++===============================
++measure_scaling.sh compares the scalability of io_uring_char and io_uring_block path
++across different queue-depths.
++
++1. Copy the script to your fio repo ```cp benchmark/measure-scaling.sh /home/test/fio/```
++
++2. Run the script, pass two arguments: char-device and block-device, respectively.
++
++3. Results will be placed in pt and blk file in the output directory.
++
++Sample command:
++```
++# ./measure-scaling.sh /dev/ng0n1 /dev/nvme0n1
++```
++
++Scalability across multiple devices
++===================================
++measure_linear_core.sh uses a distinct core for each device to measure peak performance
++of io_uring_char and io_uring_block path across multiple devices.
++
++1. Copy the script to your fio repo  ```cp benchmark/measure-linear-core.sh /home/test/fio/```
++
++2. Run the script, pass number of nvme-devices as argument.
++
++3. Results will be placed in pt${device_count} and blk${device_count} files in the output directory.
++
++Sample command:
++```
++# ./measure-linear-core.sh 2
++```
++
++Submission latency and cpu-utilization
++=======================================
++measure-fb-latency.sh measures the latency and cpu-util of io_uring_char and io_uring_block_path with/without fixed-buffers
++across different block sizes.
++
++1. Copy the script to your fio repo  ```cp benchmark/measure-fb-latency.sh /home/test/fio/```
++
++2. Run the script, pass two arguments: char-device and block-device, respectively.
++
++3. Results will be placed in the output directory, corresponding to each fio run.
++
++Sample command:
++```
++# ./measure-fb-latency.sh /dev/ng0n1 /dev/nvme0n1
++```
++
++Sqpoll and batching
++===================
++measure-sqpoll-batching.sh measures the effect of sqpoll and batching for io_uring_char
++and io_uring_block path.
++
++1. Copy the script to your fio repo  ```cp benchmark/measure-sqpoll-batching.sh /home/test/fio/```
++
++2. Run the script, pass three arguments: sqpoll disabled/enabled, char-device and block-device, respectively.
++
++3. The first run will capture results for sqpoll disabled scenario.
++
++Sample command:
++```
++# ./measure-sqpoll-batching.sh 0 /dev/ng0n1 /dev/nvme0n1
++```
++
++4. t/io_uring needs to be modified in-order-to enable sqpoll -
++```
++# git diff t/io_uring.c
++diff --git a/t/io_uring.c b/t/io_uring.c
++index bf0aa26e..a32b2e4c 100644
++--- a/t/io_uring.c
+++++ b/t/io_uring.c
++@@ -132,8 +132,8 @@ static int fixedbufs = 1;   /* use fixed user buffers */
++ static int dma_map;            /* pre-map DMA buffers */
++ static int register_files = 1; /* use fixed files */
++ static int buffered = 0;       /* use buffered IO, not O_DIRECT */
++-static int sq_thread_poll = 0; /* use kernel submission/poller thread */
++-static int sq_thread_cpu = -1; /* pin above thread to this CPU */
+++static int sq_thread_poll = 1; /* use kernel submission/poller thread */
+++static int sq_thread_cpu = 13; /* pin above thread to this CPU */
++ static int do_nop = 0;         /* no-op SQ ring commands */
++ static int nthreads = 1;
++ static int stats = 0;          /* generate IO stats */
++
++# make -j32
++CC t/io_uring.o
++LINK t/io_uring
++```
++
++5. After making changes in t/io_uring and compilation, we run the same script again
++   this time with sqpoll enabled.
++Sample command:
++```
++# ./measure-sqpoll-batching.sh 1 /dev/ng0n1 /dev/nvme0n1
++```
+diff --git a/benchmark/measure-fb-latency.sh b/benchmark/measure-fb-latency.sh
+new file mode 100755
+index 0000000..7670530
+--- /dev/null
++++ b/benchmark/measure-fb-latency.sh
+@@ -0,0 +1,85 @@
++#!/bin/bash
++set -e
++
++DEV_CHAR=$1
++DEV_BLOCK=$2
++RUNTIME=60
++
++DIR=$(date +"%H-%M-%S-%d-%m-%y")
++mkdir $DIR
++
++#description of the summary
++echo "type_bs_jobs_fixedbuf_hipri_depth_iter, BW, IOPS, avg-latency, latency(min), latency(max)" > $DIR/summary.txt
++#to give a blank line
++echo >> $DIR/summary.txt
++
++function run_fio(){
++	param_rw=$1 #randread/randwrite
++	param_uring_cmd=$2 #uring_cmd=0/1
++	param_iod=$3 #depth
++	param_suffix=$4 #iteration
++	param_bs=$5 #block_size
++	param_engine=$6 #ioengine
++	param_fixedbuf=$7 #fixedbufs enabled or not?
++	param_hipri=$8 #iopolling enabled or not?
++	param_sqt=$9 #sqthread is enabled or not?
++	param_batch=${10} #batch size
++	param_jobs=${11} #numjobs
++
++	local fname
++	local label
++	local param_output
++
++	#check type of device
++	if [ ${param_uring_cmd} == "1" ]; then
++		fname="char"
++		label="char"
++	else
++		fname="block"
++		label="block"
++	fi
++
++	label=${label}_${param_engine}
++
++	fname=${fname}_${param_engine}_${param_bs}_${param_suffix}_${param_iod}_${param_rw}_${param_bs}_${param_fixedbuf}_${param_hipri}
++	param_output=$DIR/${fname}.out
++
++	echo "engine" $param_engine, "uring_cmd" $param_uring_cmd, "rw" $param_rw, "bs" $param_bs, "sqpoll_thread", $param_sqt, "hipri" $param_hipri, "fixedbuf"  $param_fixedbuf, "param_suffix" $param_suffix, output_file $param_output
++
++	echo "engine ${param_engine} uring_cmd ${param_uring_cmd} rw ${param_rw} bs ${param_bs} sqpoll_thread ${param_sqt} hipri ${hipri} fixedbuf  ${param_fixedbuf}  param_suffix ${param_suffix} output_file ${param_output}" >> $DIR/file.info
++
++	if [ ${param_uring_cmd} == "1" ]; then #uring-passthru case
++		fio -iodepth=${param_iod} -rw=$param_rw -ioengine=${param_engine} -bs=${param_bs} -numjobs=${param_jobs} -runtime=${RUNTIME} -group_reporting -iodepth_batch_submit=${param_batch} -iodepth_batch_complete_min=1 -iodepth_batch_complete_max=${param_batch} -cmd_type=nvme -fixedbufs=${param_fixedbuf} -hipri=${param_hipri} -sqthread_poll=${param_sqt} -filename=${DEV_CHAR} -output=${param_output} -name=${param_engine}_${param_iod}
++	else #block-device io_uring
++		fio -direct=1 -iodepth=${param_iod} -rw=$param_rw -ioengine=${param_engine} -bs=${param_bs} -numjobs=${param_jobs} -runtime=${RUNTIME} -group_reporting -iodepth_batch_submit=${param_batch} -iodepth_batch_complete_min=1 -iodepth_batch_complete_max=${param_batch} -fixedbufs=${param_fixedbuf} -hipri=${param_hipri} -sqthread_poll=${param_sqt} -filename=${DEV_BLOCK} -output=${param_output} -name=${param_engine}_${param_iod}
++	fi
++
++	echo ${label}_${param_bs}_${param_jobs}_${param_fixedbuf}_${param_hipri}_${param_iod}_${param_suffix} > col_summary.txt
++	grep -nr BW $param_output | cut -d "=" -f3 | cut -d " " -f1 | cut -d "M" -f1 >> col_summary.txt
++	grep -nr BW $param_output | cut -d "=" -f2 | cut -d "," -f1 >> col_summary.txt
++	grep -nr avg $param_output | grep lat | grep -v clat | grep -v slat | grep -v cmlat | cut -d "=" -f4 | cut -d "," -f1 >> col_summary.txt
++	grep -nr avg $param_output | grep lat | grep -v clat | grep -v slat | grep -v cmlat | cut -d "=" -f2 | cut -d "," -f1 >> col_summary.txt
++	grep -nr avg $param_output | grep lat | grep -v clat | grep -v slat | grep -v cmlat | cut -d "=" -f3 | cut -d "," -f1 >> col_summary.txt
++
++	echo $(cat col_summary.txt) >> $DIR/summary.txt
++	rm col_summary.txt
++}
++
++#run_fio rw, uring_cmd, qd/iod/, iter, bs, engine, fixedbuf, hipri, sqt, batch ,jobs
++
++#uring-passthru char-device io_uring_cmd
++run_fio randread 1 1 1 4k io_uring_cmd 0 0 0 1 1
++run_fio randread 1 1 1 16k io_uring_cmd 0 0 0 1 1
++run_fio randread 1 1 1 64k io_uring_cmd 0 0 0 1 1
++
++run_fio randread 1 1 1 4k io_uring_cmd 1 0 0 1 1
++run_fio randread 1 1 1 16k io_uring_cmd 1 0 0 1 1
++run_fio randread 1 1 1 64k io_uring_cmd 1 0 0 1 1
++
++run_fio randread 0 1 1 4k io_uring 0 0 0 1 1
++run_fio randread 0 1 1 16k io_uring 0 0 0 1 1
++run_fio randread 0 1 1 64k io_uring 0 0 0 1 1
++
++run_fio randread 0 1 1 4k io_uring 1 0 0 1 1
++run_fio randread 0 1 1 16k io_uring 1 0 0 1 1
++run_fio randread 0 1 1 64k io_uring 1 0 0 1 1
+diff --git a/benchmark/measure-linear-core.sh b/benchmark/measure-linear-core.sh
+new file mode 100755
+index 0000000..bdc0520
+--- /dev/null
++++ b/benchmark/measure-linear-core.sh
+@@ -0,0 +1,98 @@
++#this uses 1 core for 1 disk, 2 cores for 2 disks, and 3 cores for 3 disks
++dev_cnt=$1;
++
++pre_run()
++{
++	i=0;
++	while [ $i -lt $dev_cnt ]
++	do
++		echo 0 > /sys/block/nvme${i}n1/queue/iostats
++		echo 2 > /sys/block/nvme${i}n1/queue/nomerges
++		echo 0 > /sys/block/nvme${i}n1/queue/wbt_lat_usec
++		i=`expr $i + 1`
++	done
++}
++run()
++{
++	local pt=$1;
++	local dcnt=$2;
++	local od=$3;
++	local cs;
++
++	i=1;
++	core_str='0';
++	if [ $pt -eq 1 ]
++	then
++		dev_str='/dev/ng0n1';
++		cs=' -O0 -u1';
++		of='pt';
++		while [ $i -lt $dcnt ]
++		do
++			dev_str+=" /dev/ng${i}n1"
++			core_str+=",${i}"
++			i=`expr $i + 1`
++		done
++	else
++		dev_str='/dev/nvme0n1';
++		cs=' -O1';
++		of='blk';
++		while [ $i -lt $dcnt ]
++		do
++			dev_str+=" /dev/nvme${i}n1"
++			core_str+=",${i}"
++			i=`expr $i + 1`
++		done
++	fi
++
++
++	printf "Test: ${dev_str} on cpu ${core_str}\n"
++
++	kstr="taskset -c $core_str t/io_uring -r4 -b512 -d128 -c32 -s32 -p0 -F1 -B0 -P0 $cs -n${dcnt} $dev_str"
++	echo $kstr
++	if [ $pt -eq 1 ]
++	then
++		printf "For ${dcnt} char device\n" > ${od}/$of${dcnt}
++	else
++		printf "For ${dcnt} block device \n" > ${od}/$of${dcnt}
++	fi
++
++	printf "\nconfig = plain\n" >> ${od}/$of${dcnt}
++
++	taskset -c $core_str t/io_uring -r4 -b512 -d128 -c32 -s32 -p0 -F1 -B0 -P0 $cs -n${dcnt} $dev_str >> ${od}/$of${dcnt}
++
++	printf "\nconfig = plain + fb\n" >>  ${od}/$of${dcnt}
++
++	taskset -c $core_str t/io_uring -r4 -b512 -d128 -c32 -s32 -p0 -F1 -B1 -P0 $cs -n${dcnt} $dev_str >> ${od}/$of${dcnt}
++
++	printf "\nconfig = plain + iopoll\n" >> ${od}/$of${dcnt}
++
++	taskset -c $core_str t/io_uring -r4 -b512 -d128 -c32 -s32 -p1 -F1 -B0 -P0 $cs -n${dcnt} $dev_str >> ${od}/$of${dcnt}
++
++	printf "\nconfig = plain + iopoll + fb\n" >> ${od}/$of${dcnt}
++
++	taskset -c $core_str t/io_uring -r4 -b512 -d128 -c32 -s32 -p1 -F1 -B1 -P0 $cs -n${dcnt} $dev_str >> ${od}/$of${dcnt}
++}
++
++pre_run
++
++outdir=out-$(date +"%d-%m-%Y-%H-%M-%S")
++mkdir $outdir
++echo "output will be inside the dir $outdir"
++
++#passthru test
++i=1;
++while [ $i -le $dev_cnt ]
++do
++	echo "running passthru test on $i device(s)"
++	run 1 $i $outdir
++	i=`expr $i + 1`
++done
++
++#block test
++i=1;
++while [ $i -le $dev_cnt ]
++do
++	echo "running block test on $i device(s)"
++	run 0 $i $outdir
++	i=`expr $i + 1`
++done
+diff --git a/benchmark/measure-scaling.sh b/benchmark/measure-scaling.sh
+new file mode 100755
+index 0000000..a11767c
+--- /dev/null
++++ b/benchmark/measure-scaling.sh
+@@ -0,0 +1,83 @@
++dev_char_str=$1;
++dev_blk_str=$2;
++
++run()
++{
++	local pt=$1;
++	local od=$2;
++	local cs;
++	local dev_str;
++
++	i=1;
++	core_str='0';
++	if [ $pt -eq 1 ]
++	then
++		dev_str=${dev_char_str};
++		cs=' -O0 -u1';
++		of='pt';
++	else
++		dev_str=${dev_blk_str};
++		cs=' -O1';
++		of='blk';
++	fi
++
++	printf "Scaling Test: ${dev_str} on cpu ${core_str}\n"
++
++	if [ $pt -eq 1 ]
++	then
++		printf "\nPassthru with depth 1\n" >>  ${od}/$of
++	else
++		printf "\nBlock with depth 1\n" >>  ${od}/$of
++	fi
++	taskset -c $core_str t/io_uring -r4 -b512 -d1 -c1 -s1 -p1 -F1 -B1 -P0 $cs -n1 $dev_str >> ${od}/$of
++
++	if [ $pt -eq 1 ]
++	then
++		printf "\nPassthru with depth 8\n" >>  ${od}/$of
++	else
++		printf "\nBlock with depth 8\n" >>  ${od}/$of
++	fi
++	taskset -c $core_str t/io_uring -r4 -b512 -d8 -c2 -s2 -p1 -F1 -B1 -P0 $cs -n1 $dev_str >> ${od}/$of
++
++	if [ $pt -eq 1 ]
++	then
++		printf "\nPassthru with depth 16\n" >>  ${od}/$of
++	else
++		printf "\nBlock with depth 16\n" >>  ${od}/$of
++	fi
++	taskset -c $core_str t/io_uring -r4 -b512 -d16 -c4 -s4 -p1 -F1 -B1 -P0 $cs -n1 $dev_str >> ${od}/$of
++
++	if [ $pt -eq 1 ]
++	then
++		printf "\nPassthru with depth 32\n" >>  ${od}/$of
++	else
++		printf "\nBlock with depth 32\n" >>  ${od}/$of
++	fi
++	taskset -c $core_str t/io_uring -r4 -b512 -d32 -c8 -s8 -p1 -F1 -B1 -P0 $cs -n1 $dev_str >> ${od}/$of
++
++	if [ $pt -eq 1 ]
++	then
++		printf "\nPassthru with depth 64\n" >>  ${od}/$of
++	else
++		printf "\nBlock with depth 64\n" >>  ${od}/$of
++	fi
++	taskset -c $core_str t/io_uring -r4 -b512 -d64 -c16 -s16 -p1 -F1 -B1 -P0 $cs -n1 $dev_str >> ${od}/$of
++
++	if [ $pt -eq 1 ]
++	then
++		printf "\nPassthru with depth 128\n" >>  ${od}/$of
++	else
++		printf "\nBlock with depth 128\n" >>  ${od}/$of
++	fi
++	taskset -c $core_str t/io_uring -r4 -b512 -d128 -c32 -s32 -p1 -F1 -B1 -P0 $cs -n1 $dev_str >> ${od}/$of
++}
++
++outdir=out-$(date +"%d-%m-%Y-%H-%M-%S")
++mkdir $outdir
++echo "output will be inside the dir $outdir"
++
++#passthru test
++run 1 $outdir
++
++#block test
++run 0 $outdir
+diff --git a/benchmark/measure-sqpoll-batching.sh b/benchmark/measure-sqpoll-batching.sh
+new file mode 100755
+index 0000000..9d6724e
+--- /dev/null
++++ b/benchmark/measure-sqpoll-batching.sh
+@@ -0,0 +1,82 @@
++sqpoll=$1
++dev_char_str=$2;
++dev_blk_str=$3;
++
++run()
++{
++	local pt=$1;
++	local od=$2;
++	local cs;
++	local dev_str;
++
++	i=1;
++	core_str='0';
++	if [ $pt -eq 1 ]
++	then
++		dev_str=${dev_char_str};
++		cs=' -O0 -u1';
++		of='pt';
++	else
++		dev_str=${dev_blk_str};
++		cs=' -O1';
++		of='blk';
++	fi
++
++	printf "Sqpoll Test: ${dev_str} on cpu ${core_str}\n"
++
++	if [ $pt -eq 1 ]
++	then
++		printf "\nPassthru with depth 128, batch 2\n" >>  ${od}/$of
++	else
++		printf "\nBlock with depth 128, batch 2\n" >>  ${od}/$of
++	fi
++	taskset -c $core_str t/io_uring -r4 -b512 -d128 -c2 -s2 -p1 -F1 -B1 -P0 $cs -n1 $dev_str >> ${od}/$of
++
++	if [ $pt -eq 1 ]
++	then
++		printf "\nPassthru with depth 128, batch 4\n" >>  ${od}/$of
++	else
++		printf "\nBlock with depth 128, batch 4\n" >>  ${od}/$of
++	fi
++	taskset -c $core_str t/io_uring -r4 -b512 -d128 -c4 -s4 -p1 -F1 -B1 -P0 $cs -n1 $dev_str >> ${od}/$of
++
++	if [ $pt -eq 1 ]
++	then
++		printf "\nPassthru with depth 128, batch 8\n" >>  ${od}/$of
++	else
++		printf "\nBlock with depth 128, batch 8\n" >>  ${od}/$of
++	fi
++	taskset -c $core_str t/io_uring -r4 -b512 -d128 -c8 -s8 -p1 -F1 -B1 -P0 $cs -n1 $dev_str >> ${od}/$of
++
++	if [ $pt -eq 1 ]
++	then
++		printf "\nPassthru with depth 128, batch 16\n" >>  ${od}/$of
++	else
++		printf "\nBlock with depth 128, batch 16\n" >>  ${od}/$of
++	fi
++	taskset -c $core_str t/io_uring -r4 -b512 -d128 -c16 -s16 -p1 -F1 -B1 -P0 $cs -n1 $dev_str >> ${od}/$of
++
++	if [ $pt -eq 1 ]
++	then
++		printf "\nPassthru with depth 128, batch 32\n" >>  ${od}/$of
++	else
++		printf "\nBlock with depth 128, batch 32\n" >>  ${od}/$of
++	fi
++	taskset -c $core_str t/io_uring -r4 -b512 -d128 -c32 -s32 -p1 -F1 -B1 -P0 $cs -n1 $dev_str >> ${od}/$of
++}
++
++if [ $sqpoll -eq 1 ]
++then
++	outdir=without-sqpoll-out-$(date +"%d-%m-%Y-%H-%M-%S")
++else
++	outdir=with-sqpoll-out-$(date +"%d-%m-%Y-%H-%M-%S")
++fi
++
++mkdir $outdir
++echo "output will be inside the dir $outdir"
++
++#passthru test
++run 1 $outdir
++
++#block test
++run 0 $outdir
+-- 
+2.25.1
+

@@ -57,7 +57,7 @@ performance of io_uring_char and io_uring_block path.
 
 Sample command:
 ```
-# ./measure-linear-core.sh /dev/ng0n1 /dev/nvme0n1
+# ./measure-single-device.sh /dev/ng0n1 /dev/nvme0n1
 ```
 
 Scalability across queue-depths

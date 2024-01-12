@@ -53,9 +53,9 @@ mkdir $outdir
 echo "output will be inside the dir $outdir"
 
 #passthru test
-echo "running passthru test on $i device(s)"
+echo "running passthru test on 1 device(s)"
 run 1 $outdir
 
 #block test
-echo "running block test on $i device(s)"
+echo "running block test on 1 device(s)"
 run 0 $outdir
