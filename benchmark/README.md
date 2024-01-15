@@ -44,6 +44,13 @@ Node                  Generic               SN                   Model          
 1
 ```
 
+4. Installing fio
+* Clone upstream fio: ```git clone https://github.com/axboe/fio```
+* Change directory: ```cd fio```
+* Checkout fio-3.35: ```git checkout fio-3.35```
+* Compile fio: ```make -j $(getconf _NPROCESSORS_ONLN)```
+* Install  fio: ```make install```
+
 Peak performance using single CPU core
 ======================================
 measure-single-device.sh uses single cpu core for one device to measure peak

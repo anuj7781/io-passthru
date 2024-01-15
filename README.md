@@ -24,13 +24,6 @@ efficient I/O Path in Linux published at FAST'24 : https://www.usenix.org/confer
 * Verify the kernel booted is custom build by, ```uname -r```
 * Refer: https://kernelnewbies.org/KernelBuild
 
-# Installing fio
-* Clone upstream fio: ```git clone https://github.com/axboe/fio```
-* Change directory: ```cd fio```
-* Checkout fio-3.35: ```git checkout fio-3.35```
-* Compile fio: ```make -j $(getconf _NPROCESSORS_ONLN)```
-* Install  fio: ```make install```
-
 # Userspace Integration
 
 Link to patches for adding userspace support:
