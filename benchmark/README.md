@@ -49,7 +49,7 @@ Peak performance using single CPU core
 measure-single-device.sh uses single cpu core for one device to measure peak
 performance of io_uring_char and io_uring_block path.
 
-1. Copy the script to your fio repo ```cp benchmark/measure-single-device.sh /home/test/fio/```
+1. Copy the script to your fio repo ```cp benchmark/measure-single-device.sh FIO_SRC_DIRECTORY```
 
 2. Run the script, pass char device and block device as arguments. (Note: you can pass any char/block device. /dev/ng0n1 and /dev/nvme0n1 are used as only examples in sample command.)
 
@@ -65,7 +65,7 @@ Scalability across queue-depths
 measure_scaling.sh compares the scalability of io_uring_char and io_uring_block path
 across different queue-depths.
 
-1. Copy the script to your fio repo ```cp benchmark/measure-scaling.sh /home/test/fio/```
+1. Copy the script to your fio repo ```cp benchmark/measure-scaling.sh FIO_SRC_DIRECTORY```
 
 2. Run the script, pass two arguments: char-device and block-device, respectively. (Note: you can pass any char/block device. /dev/ng0n1 and /dev/nvme0n1 are used as only examples in sample command.)
 
@@ -81,7 +81,7 @@ Scalability across multiple(two) devices
 measure-two-devices.sh uses a distinct core for each device to measure peak performance
 of io_uring_char and io_uring_block path across multiple devices.
 
-1. Copy the script to your fio repo  ```cp benchmark/measure-two-devices.sh /home/test/fio/```
+1. Copy the script to your fio repo  ```cp benchmark/measure-two-devices.sh FIO_SRC_DIRECORY```
 
 2. Run the script, pass two char device and two block device as arguments in that order. (Note: you can pass any char/block device. The sample command is just an example.)
 
@@ -97,7 +97,7 @@ Submission latency and cpu-utilization
 measure-fb-latency.sh measures the latency and cpu-util of io_uring_char and io_uring_block_path with/without fixed-buffers
 across different block sizes.
 
-1. Copy the script to your fio repo  ```cp benchmark/measure-fb-latency.sh /home/test/fio/```
+1. Copy the script to your fio repo  ```cp benchmark/measure-fb-latency.sh FIO_SRC_DIRECTORY```
 
 2. Run the script, pass two arguments: char-device and block-device, respectively. (Note: you can pass any char/block device. /dev/ng0n1 and /dev/nvme0n1 are used as only examples in sample command.)
 
@@ -113,7 +113,7 @@ Sqpoll and batching
 measure-sqpoll-batching.sh measures the effect of sqpoll and batching for io_uring_char
 and io_uring_block path.
 
-1. Copy the script to your fio repo  ```cp benchmark/measure-sqpoll-batching.sh /home/test/fio/```
+1. Copy the script to your fio repo  ```cp benchmark/measure-sqpoll-batching.sh FIO_SRC_DIRECTORY```
 
 2. Run the script, pass three arguments: sqpoll disabled/enabled, char-device and block-device, respectively. (Note: you can pass any char/block device. /dev/ng0n1 and /dev/nvme0n1 are used as only examples in sample command.)
 
