@@ -2,8 +2,12 @@ This repository contains the artifacts of I/O Passthru: Upstreaming a flexible a
 efficient I/O Path in Linux published at FAST'24 : https://www.usenix.org/conference/fast24/presentation/joshi
 
 # Overview
+* Ubuntu Distro
 * Installing Linux
-* Installing fio
+* Userspace Integration
+* Kernel patches
+* Benchmarking
+* Cachelib Experiments
 
 # Ubuntu Distro
 * The performance was benchmarked using 6.2 kernel. 6.2 kernel comes preinstalled with ubuntu 23.04 (or Ubuntu 22.04.3 LTS). Please see this: https://ubuntu.com/about/release-cycle#ubuntu-kernel-release-cycle
